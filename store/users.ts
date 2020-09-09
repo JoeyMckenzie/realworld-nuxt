@@ -1,7 +1,8 @@
 import { getAccessorType, getterTree, actionTree, mutationTree } from "typed-vuex";
-import { UserViewModel, AuthenticationRequest } from "@/models/users.types";
+import { UserViewModel, AuthenticationRequest, UserDto, UsersState } from "@/models/users.types";
 import { ApiError } from "@/models/shared.types";
-import { API_BASE_URL, DEFAULT_HEADERS } from ".";
+import { API_BASE_URL, DEFAULT_HEADERS, DEFAULT_HEADERS_WITH_AUTHORIZATION } from ".";
+import { isNullOrUndefined, getUserTokenFromStorage } from "@/utils";
 
 /**
  * Mutation keys
@@ -17,24 +18,24 @@ export const USER_TOKEN_STORAGE_KEY = "user";
 export const LOGIN_USER = "login";
 export const REGISTER_USER = "register";
 export const GET_CURRENT_USER = "getCurrentUser";
-export const GET_USER_FROM_STORAGE = "getUserFromStorage";
+export const GET_TOKEN_FROM_STORAGE = "getTokenFromStorage";
 export const SET_USER_IN_STORAGE = "setUserInStorage";
+export const CLEAR_USER = "clearUser";
 
 /**
- * Users state
+ * State definition
  */
-export type UsersState = ReturnType<typeof state>;
-
 export const state = () => ({
-  currentUser: { } as UserViewModel,
+  currentUser: undefined,
   errors: [] as string[]
-});
+} as UsersState);
 
 /**
  * Getters
  */
 export const getters = getterTree(state, {
-  user: state => state.currentUser.user,
+  currentUser: state => state.currentUser?.username,
+  userIsAuthenticated: state => !isNullOrUndefined(state.currentUser),
   errors: state => state.errors,
 });
 
@@ -42,7 +43,7 @@ export const getters = getterTree(state, {
  * Mutations
  */
 export const mutations = mutationTree(state, {
-  [SET_CURRENT_USER]: (state, user: UserViewModel) => state.currentUser = user,
+  [SET_CURRENT_USER]: (state, user: UserDto | undefined) => state.currentUser = user,
   [SET_AUTHENTICATION_ERROR]: (state, errors?: { [key: string]: [] }) => {
     if (errors === undefined) {
       state.errors = [];
@@ -65,25 +66,22 @@ export const mutations = mutationTree(state, {
  * Actions
  */
 export const actions = actionTree({ state, getters, mutations }, {
-  [LOGIN_USER]: (context, payload: AuthenticationRequest) => {
+  async [LOGIN_USER]({ commit, dispatch }, payload: AuthenticationRequest) {
   },
 
   /**
    * Dispatched action to call the register endpoint and returns a flag back
    * to the components signaling them to route back to home on success 
    */
-  [REGISTER_USER]: async ({ commit, dispatch }, payload: AuthenticationRequest): Promise<boolean> => {
+  async [REGISTER_USER]({ commit, dispatch }, payload: AuthenticationRequest) {
     const apiResponse = await fetch(`${API_BASE_URL}/users`, { method: "POST", body: JSON.stringify(payload), ...DEFAULT_HEADERS });
 
     if (apiResponse.ok) {
       const registeredUser: UserViewModel = await apiResponse.json();
-      commit(SET_CURRENT_USER, registeredUser);
+      commit(SET_CURRENT_USER, registeredUser.user);
       commit(SET_AUTHENTICATION_ERROR, undefined);
       dispatch(SET_USER_IN_STORAGE, registeredUser.user.token);
-
-      // On a successful registration, return true to the caller to let them know
-      // to navigate back to home 
-      return true;
+      this.$router.push("/");      
     } else {
       const apiErrors: ApiError = await apiResponse.json();
       commit(SET_AUTHENTICATION_ERROR, apiErrors.errors);
@@ -91,19 +89,17 @@ export const actions = actionTree({ state, getters, mutations }, {
       return false;
     }
   },
-  [GET_CURRENT_USER]: async ({ commit }, token: string) => {
-      const apiResponse = await fetch(API_BASE_URL, { method: "GET", ...DEFAULT_HEADERS });
-      const user: UserViewModel = await apiResponse.json();
-      commit(SET_CURRENT_USER, user);
+
+  /**
+   * Dispatched action to retrieve the current user from the cached token
+   */
+  async [GET_CURRENT_USER]({ commit }, token: string) {
+      this.$axios.setToken(getUserTokenFromStorage(), "Token");
+      const apiResponse = await this.$axios.$get<UserViewModel>("user");
+      commit(SET_CURRENT_USER, apiResponse.user);
   },
-  [GET_USER_FROM_STORAGE]: ({ dispatch }) => {
-    const userTokenFromStorage = localStorage.getItem(USER_TOKEN_STORAGE_KEY);
-
-    if (userTokenFromStorage === null || userTokenFromStorage.length === 0) {
-      return;
-    }
-
-    dispatch(GET_CURRENT_USER, userTokenFromStorage);
+  [CLEAR_USER]: ({commit}) => {
+    commit(SET_CURRENT_USER, undefined);
   },
   [SET_USER_IN_STORAGE]: ({ }, token: string) => localStorage.setItem(USER_TOKEN_STORAGE_KEY, token)
 });

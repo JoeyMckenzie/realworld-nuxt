@@ -8,6 +8,13 @@ export const DEFAULT_HEADERS = {
   }
 } as RequestInit;
 
+export const DEFAULT_HEADERS_WITH_AUTHORIZATION = (token: string) => ({
+  headers: {
+    "Authorization": `Token ${token}`,
+    "Content-Type": "application/json"
+  }
+} as RequestInit);
+
 export const accessorType = getAccessorType({
   modules: {
     users

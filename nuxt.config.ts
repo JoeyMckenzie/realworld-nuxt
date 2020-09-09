@@ -39,6 +39,7 @@ const realworldConfig: Configuration = {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
+    "@/plugins/axios"
   ],
   /*
   ** Auto import components
@@ -56,13 +57,17 @@ const realworldConfig: Configuration = {
   ** Nuxt.js modules
   */
   modules: [
+    "@nuxtjs/axios"
   ],
+  axios: {
+    baseURL: "https://conduit.productionready.io/api"
+  },
   /*
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-  }
+  },
 }
 
 export default realworldConfig;

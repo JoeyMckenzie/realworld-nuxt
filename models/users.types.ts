@@ -1,3 +1,8 @@
+export type UsersState = {
+  currentUser: UserDto | undefined,
+  errors: string[]
+};
+
 export type UserViewModel = {
   user: UserDto
 };
