@@ -5,7 +5,7 @@ const realworldConfig: Configuration = {
   ** Nuxt rendering mode
   ** See https://nuxtjs.org/api/configuration-mode
   */
-  mode: "spa",
+  mode: "universal",
   /*
   ** Nuxt target
   ** See https://nuxtjs.org/api/configuration-target
@@ -62,11 +62,6 @@ const realworldConfig: Configuration = {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-    extend(config, context) {
-      if (context.isDev) {
-        config.devtool = context.isClient ? "source-map" : "inline-source-map"
-      }
-    }
   }
 }
 

@@ -67,6 +67,11 @@ export const mutations = mutationTree(state, {
 export const actions = actionTree({ state, getters, mutations }, {
   [LOGIN_USER]: (context, payload: AuthenticationRequest) => {
   },
+
+  /**
+   * Dispatched action to call the register endpoint and returns a flag back
+   * to the components signaling them to route back to home on success 
+   */
   [REGISTER_USER]: async ({ commit, dispatch }, payload: AuthenticationRequest): Promise<boolean> => {
     const apiResponse = await fetch(`${API_BASE_URL}/users`, { method: "POST", body: JSON.stringify(payload), ...DEFAULT_HEADERS });
 
