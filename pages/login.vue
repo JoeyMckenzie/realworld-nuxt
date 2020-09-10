@@ -15,14 +15,14 @@
           </li>
         </ul>
 
-        <div @click="loginUser">
+        <div>
           <fieldset class="form-group">
-            <input class="form-control form-control-lg" type="text" placeholder="Email">
+            <input v-model="email" class="form-control form-control-lg" type="text" placeholder="Email">
           </fieldset>
           <fieldset class="form-group">
-            <input class="form-control form-control-lg" type="password" placeholder="Password">
+            <input v-model="password" class="form-control form-control-lg" type="password" placeholder="Password">
           </fieldset>
-          <button class="btn btn-lg btn-primary pull-xs-right">
+          <button @click="loginUser" class="btn btn-lg btn-primary pull-xs-right">
             Sign in
           </button>
         </div>
@@ -37,7 +37,7 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import { LOGIN_USER, CLEAR_API_ERRORS } from "@/store/users";
-import { AuthenticationRequest, LoginPayload } from "@/models/users.types";
+import { AuthenticationRequest, LoginRequest } from "@/models/users.types";
 import { Route, NavigationGuardNext } from "vue-router";
 
 export default Vue.extend({
@@ -56,9 +56,9 @@ export default Vue.extend({
       const user = {
         email: this.$data.email,
         password: this.$data.password
-      } as LoginPayload;
+      } as LoginRequest;
 
-      this.$accessor.users[LOGIN_USER]({ user: user } as AuthenticationRequest);
+      this.$accessor.users[LOGIN_USER](user);
     }
   }
 });

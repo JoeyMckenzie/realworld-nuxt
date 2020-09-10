@@ -9,7 +9,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { isStringNullUndefinedOrEmpty } from "@/utils";
+import { getUserTokenFromStorage, isStringNullUndefinedOrEmpty } from "@/utils";
 import { GET_CURRENT_USER } from "@/store/users"
 
 export default Vue.extend({

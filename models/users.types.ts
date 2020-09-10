@@ -19,19 +19,28 @@ export type UserDto = {
   password?: string;
 };
 
-export type LoginPayload = {
+export type UpdateRequest = {
+  username: string;
+  email: string;
+  bio: string;
+  image: string;
+  password: string;
+}
+
+export type LoginRequest = {
   email: string,
   password: string
 };
 
-export type RegisterPayload = {
+export type RegisterRequest = {
   email: string,
   username: string,
   password: string
 };
 
 export type AuthenticationRequest = {
-  user: LoginPayload | RegisterPayload
+  endpoint: string;
+  user: LoginRequest | RegisterRequest
 };
 
 export type AuthenticationResponse = UserViewModel | ApiErrorDto;

@@ -40,7 +40,7 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import { REGISTER_USER, CLEAR_API_ERRORS } from "@/store/users";
-import { AuthenticationRequest, RegisterPayload } from "@/models/users.types";
+import { AuthenticationRequest, RegisterRequest } from "@/models/users.types";
 import { Route, NavigationGuardNext } from "vue-router";
 
 export default Vue.extend({
@@ -61,13 +61,9 @@ export default Vue.extend({
         email: this.$data.email,
         username: this.$data.username,
         password: this.$data.password
-      } as RegisterPayload;
+      } as RegisterRequest;
 
-      const shouldRouteToHome = await this.$accessor.users[REGISTER_USER]({ user: user } as AuthenticationRequest);
-
-      if (shouldRouteToHome) {
-        this.$router.push("/");
-      }
+      this.$accessor.users[REGISTER_USER](user);
     }
   }
 });

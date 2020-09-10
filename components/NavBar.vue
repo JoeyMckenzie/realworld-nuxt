@@ -18,7 +18,7 @@
           </nuxt-link>
         </li>
         <li class="nav-item">
-          <nuxt-link v-if="userIsAuthenticated" class="nav-link" active-class="active" to="/profile">{{ currentUser }}</nuxt-link>
+          <nuxt-link v-if="userIsAuthenticated" class="nav-link" active-class="active" to="/profile">{{ getUsername }}</nuxt-link>
           <nuxt-link v-else class="nav-link" active-class="active" to="/register">Sign up</nuxt-link>
         </li>
       </ul>
@@ -33,6 +33,11 @@ import { getUserTokenFromStorage, isStringNullUndefinedOrEmpty, isNullOrUndefine
 import { UserDto } from "@/models/users.types";
 
 export default Vue.extend({
-  computed: mapGetters("users", ["currentUser", "userIsAuthenticated"])
+  computed: {
+    ...mapGetters("users", ["currentUser", "userIsAuthenticated"]),
+    getUsername() {
+      return (this.currentUser as UserDto).username;
+    }
+  }
 })
 </script>
