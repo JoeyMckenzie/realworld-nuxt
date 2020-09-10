@@ -6,7 +6,7 @@
         <div class="col-md-6 offset-md-3 col-xs-12">
           <h1 class="text-xs-center">Sign up</h1>
           <p class="text-xs-center">
-            <a href="">Have an account?</a>
+            <nuxt-link to="/login">Have an account?</nuxt-link>
           </p>
 
           <ul class="error-messages">
@@ -39,8 +39,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { REGISTER_USER } from "@/store/users";
+import { REGISTER_USER, CLEAR_API_ERRORS } from "@/store/users";
 import { AuthenticationRequest, RegisterPayload } from "@/models/users.types";
+import { Route, NavigationGuardNext } from "vue-router";
 
 export default Vue.extend({
   data: () => ({
@@ -48,6 +49,12 @@ export default Vue.extend({
     email: "",
     password: ""
   }),
+  beforeRouteLeave(to: Route, from: Route, next: NavigationGuardNext<Vue>) {
+    // Clear any persisting API errors when the route changes
+    this.$accessor.users[CLEAR_API_ERRORS]();
+    next();
+  },
+  computed: mapGetters("users", ["errors"]),
   methods: {
     async registerUser(): Promise<void> {
       const user = {
@@ -59,14 +66,6 @@ export default Vue.extend({
       const shouldRouteToHome = await this.$accessor.users[REGISTER_USER]({ user: user } as AuthenticationRequest);
 
       if (shouldRouteToHome) {
-        this.$router.push("/");
-      }
-    }
-  },
-  computed: {
-    ...mapGetters("users", ["errors"]),
-    routeToHomeOnSuccesfulRegistration() {
-      if (this.routeToHome as boolean) {
         this.$router.push("/");
       }
     }

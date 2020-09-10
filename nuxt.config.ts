@@ -39,7 +39,6 @@ const realworldConfig: Configuration = {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    "@/plugins/axios"
   ],
   /*
   ** Auto import components
@@ -60,13 +59,25 @@ const realworldConfig: Configuration = {
     "@nuxtjs/axios"
   ],
   axios: {
-    baseURL: "https://conduit.productionready.io/api"
+    baseURL: "https://conduit.productionready.io/api",
+    headers: {
+      common: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Charset": "utf-8"
+      }
+    }
   },
   /*
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
+    extend(config, ctx) {
+      if (ctx.isDev) {
+        config.devtool = ctx.isClient ? 'source-map' : 'inline-source-map'
+      }
+    }
   },
 }
 

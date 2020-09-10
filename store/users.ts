@@ -1,7 +1,6 @@
 import { getAccessorType, getterTree, actionTree, mutationTree } from "typed-vuex";
-import { UserViewModel, AuthenticationRequest, UserDto, UsersState } from "@/models/users.types";
-import { ApiError } from "@/models/shared.types";
-import { API_BASE_URL, DEFAULT_HEADERS, DEFAULT_HEADERS_WITH_AUTHORIZATION } from ".";
+import { UserViewModel, AuthenticationRequest, UserDto, UsersState, AuthenticationResponse } from "@/models/users.types";
+import { ApiErrorDto } from "@/models/shared.types";
 import { isNullOrUndefined, getUserTokenFromStorage } from "@/utils";
 
 /**
@@ -19,15 +18,18 @@ export const LOGIN_USER = "login";
 export const REGISTER_USER = "register";
 export const GET_CURRENT_USER = "getCurrentUser";
 export const GET_TOKEN_FROM_STORAGE = "getTokenFromStorage";
-export const SET_USER_IN_STORAGE = "setUserInStorage";
+export const SET_TOKEN_IN_STORAGE = "setUserInStorage";
 export const CLEAR_USER = "clearUser";
+export const CLEAR_API_ERRORS = "clearApiErrors";
+
 
 /**
  * State definition
  */
 export const state = () => ({
   currentUser: undefined,
-  errors: [] as string[]
+  errors: [] as string[],
+  isLoading: false
 } as UsersState);
 
 /**
@@ -43,15 +45,25 @@ export const getters = getterTree(state, {
  * Mutations
  */
 export const mutations = mutationTree(state, {
-  [SET_CURRENT_USER]: (state, user: UserDto | undefined) => state.currentUser = user,
-  [SET_AUTHENTICATION_ERROR]: (state, errors?: { [key: string]: [] }) => {
-    if (errors === undefined) {
+  [SET_CURRENT_USER]: (state: UsersState, user: UserDto | undefined) => state.currentUser = user,
+
+  /**
+   * Mutates error state to flatten the returned error aggregate from the API as a string list.
+   * 
+   * @param state {UsersState} - Users state slice
+   * @param errors {ApiErrorDto} - Error aggregate returned from API
+   */
+  [SET_AUTHENTICATION_ERROR]: (state: UsersState, errors?: ApiErrorDto) => {
+    // If no errors are returned, set state to an empty list
+    if (isNullOrUndefined(errors)) {
       state.errors = [];
       return;
     }
 
+    // Initialize the flattened error list to set in state
     const friendlyErrors = [] as string[];
 
+    // Iterate through each property of the error aggregate and add the flattened error to the list
     for (const key in errors) {
       const errorValue: string[] = errors[key]; 
       const normalizedKey = key.charAt(0).toUpperCase() + key.substring(1, key.length);
@@ -66,27 +78,53 @@ export const mutations = mutationTree(state, {
  * Actions
  */
 export const actions = actionTree({ state, getters, mutations }, {
+  /**
+   * Dispatched action to call the login endpoint and route back to home on success.
+   * 
+   * @param commit|dispatch - Context helpers  
+   * @param payload {AuthenticationRequest} - Login payload
+   */
   async [LOGIN_USER]({ commit, dispatch }, payload: AuthenticationRequest) {
+    try {
+      // Call the login endpoint
+      const apiResponse = await this.$axios.$post<UserViewModel>("/users/login", payload)
+  
+      // If no user is returned, assume an error occurred
+      commit(SET_CURRENT_USER, apiResponse.user);
+      dispatch(SET_TOKEN_IN_STORAGE, apiResponse.user.token);
+
+      // Route the user back to the home page
+      this.$router.push("/");
+    } catch (error) {
+      commit(SET_CURRENT_USER, undefined);
+
+      // Axios returns the response body with error.response.data
+      commit(SET_AUTHENTICATION_ERROR, error.response.data.errors as ApiErrorDto);
+    }
   },
 
   /**
-   * Dispatched action to call the register endpoint and returns a flag back
-   * to the components signaling them to route back to home on success 
+   * Dispatched action to call the register endpoint and returns a flag back route back to home on success.
+   * 
+   * @param commit|dispatch - Context helpers  
+   * @param payload {AuthenticationRequest} - Register payload
    */
   async [REGISTER_USER]({ commit, dispatch }, payload: AuthenticationRequest) {
-    const apiResponse = await fetch(`${API_BASE_URL}/users`, { method: "POST", body: JSON.stringify(payload), ...DEFAULT_HEADERS });
+    try {
+      // Call the register endpoint
+      const apiResponse = await this.$axios.$post<UserViewModel>("/users", payload)
+  
+      // If no user is returned, assume an error occurred
+      commit(SET_CURRENT_USER, apiResponse.user);
+      dispatch(SET_TOKEN_IN_STORAGE, apiResponse.user.token);
 
-    if (apiResponse.ok) {
-      const registeredUser: UserViewModel = await apiResponse.json();
-      commit(SET_CURRENT_USER, registeredUser.user);
-      commit(SET_AUTHENTICATION_ERROR, undefined);
-      dispatch(SET_USER_IN_STORAGE, registeredUser.user.token);
-      this.$router.push("/");      
-    } else {
-      const apiErrors: ApiError = await apiResponse.json();
-      commit(SET_AUTHENTICATION_ERROR, apiErrors.errors);
+      // Route the user back to the home page
+      this.$router.push("/");
+    } catch (error) {
+      commit(SET_CURRENT_USER, undefined);
 
-      return false;
+      // Axios returns the response body with error.response.data
+      commit(SET_AUTHENTICATION_ERROR, error.response.data.errors as ApiErrorDto);
     }
   },
 
@@ -98,10 +136,9 @@ export const actions = actionTree({ state, getters, mutations }, {
       const apiResponse = await this.$axios.$get<UserViewModel>("user");
       commit(SET_CURRENT_USER, apiResponse.user);
   },
-  [CLEAR_USER]: ({commit}) => {
-    commit(SET_CURRENT_USER, undefined);
-  },
-  [SET_USER_IN_STORAGE]: ({ }, token: string) => localStorage.setItem(USER_TOKEN_STORAGE_KEY, token)
+  [CLEAR_USER]: ({commit}) => commit(SET_CURRENT_USER, undefined),
+  [CLEAR_API_ERRORS]: ({ commit }) => commit(SET_AUTHENTICATION_ERROR, undefined),
+  [SET_TOKEN_IN_STORAGE]: ({ }, token: string) => localStorage.setItem(USER_TOKEN_STORAGE_KEY, token)
 });
 
 export const accessorType = getAccessorType({

@@ -1,8 +1,10 @@
-export function isNullOrUndefined(value: any | undefined | null): boolean {
+import { Maybe, RetrievedItem } from "@/models/shared.types";
+
+export const isNullOrUndefined = (value: Maybe<any>): boolean => {
   return value === undefined || value === null;
 }
 
-export function isStringNullUndefinedOrEmpty(value: string | undefined | null): boolean {
+export const isStringNullUndefinedOrEmpty = (value: Maybe<string>): boolean => {
   if (typeof value === "string") {
     return value.length === 0;
   }
@@ -10,7 +12,7 @@ export function isStringNullUndefinedOrEmpty(value: string | undefined | null): 
   return isNullOrUndefined(value);
 }
 
-export function getUserTokenFromStorage(): string | false {
+export const getUserTokenFromStorage = (): RetrievedItem => {
   if (!process.browser) {
     return false;
   }

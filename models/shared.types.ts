@@ -1,5 +1,9 @@
 export type ApiError = {
-  errors: {
-    [errorKey: string]: []
-  }
+  errors: ApiErrorDto
 };
+
+export type ApiErrorDto = { [key: string]: [] };
+
+export type Maybe<T> = T | undefined | null;
+
+export type RetrievedItem = string | false;

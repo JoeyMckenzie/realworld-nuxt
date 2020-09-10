@@ -1,6 +1,9 @@
+import { ApiError, ApiErrorDto } from "./shared.types";
+
 export type UsersState = {
   currentUser: UserDto | undefined,
-  errors: string[]
+  errors: string[],
+  isLoading: boolean
 };
 
 export type UserViewModel = {
@@ -17,7 +20,7 @@ export type UserDto = {
 };
 
 export type LoginPayload = {
-  username: string,
+  email: string,
   password: string
 };
 
@@ -30,3 +33,5 @@ export type RegisterPayload = {
 export type AuthenticationRequest = {
   user: LoginPayload | RegisterPayload
 };
+
+export type AuthenticationResponse = UserViewModel | ApiErrorDto;
