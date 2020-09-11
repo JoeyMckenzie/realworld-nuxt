@@ -1,18 +1,19 @@
 import { getAccessorType, getterTree, actionTree, mutationTree } from "typed-vuex";
-import { UserViewModel, AuthenticationRequest, UserDto, UsersState, AuthenticationResponse, LoginRequest, RegisterRequest, UpdateRequest } from "@/models/users.types";
+import { UserViewModel, AuthenticationRequest, UserDto, UsersState, AuthenticationResponse, LoginRequest, RegisterRequest, UpdateRequest } from "@/models/user.types";
 import { ApiErrorDto } from "@/models/shared.types";
 import { isNullOrUndefined, getUserTokenFromStorage } from "@/utils";
 
 /**
  * Mutation keys
  */
-export const SET_CURRENT_USER = "setCurrentUser";
-export const SET_AUTHENTICATION_ERROR = "setAuthenticationError";
-export const SET_ROUTE_TO_HOME = "setRouteToHome";
+const SET_USERS_STATE = "setUsersState";
+const SET_CURRENT_USER = "setCurrentUser";
+const SET_AUTHENTICATION_ERROR = "setAuthenticationError";
 
 /**
  * Action keys
  */
+export const REHYDRATE_USERS_STATE = "rehydrateUsersState"; 
 export const LOGIN_USER = "login";
 export const REGISTER_USER = "register";
 export const UPDATE_USER = "update";
@@ -50,6 +51,12 @@ export const getters = getterTree(state, {
  * Mutations
  */
 export const mutations = mutationTree(state, {
+  [SET_USERS_STATE]: (state: UsersState, rehydratedState: UsersState) => {
+    state.currentUser = rehydratedState.currentUser;
+    state.errors = rehydratedState.errors;
+    state.isLoading = rehydratedState.isLoading;
+    state.updatedUser = rehydratedState.updatedUser;
+  },
   [SET_CURRENT_USER]: (state: UsersState, user: UserDto | undefined) => state.currentUser = user,
   [SET_UPDATED_USERNAME]: (state: UsersState, updatedUsername: string) => state.updatedUser.username = updatedUsername,
   [SET_UPDATED_EMAIL]: (state: UsersState, updatedEmail: string) => state.updatedUser.email = updatedEmail,
@@ -87,6 +94,7 @@ export const mutations = mutationTree(state, {
  * Actions
  */
 export const actions = actionTree({ state, getters, mutations }, {
+  [REHYDRATE_USERS_STATE]: ({ commit }, state: UsersState) => commit(SET_USERS_STATE, state),
   [CLEAR_USER]: ({commit}) => commit(SET_CURRENT_USER, undefined),
   [CLEAR_API_ERRORS]: ({ commit }) => commit(SET_AUTHENTICATION_ERROR, undefined),
   [SET_UPDATED_USERNAME]: ({ commit }, updatedUsername: string) => commit(SET_UPDATED_USERNAME, updatedUsername),

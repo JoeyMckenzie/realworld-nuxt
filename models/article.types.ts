@@ -1,7 +1,15 @@
 export type ArticlesState = {
   currentArticleList?: ArticleViewModelList;
   currentArticle?: ArticleViewModel;
+  currentFeed: ArticleFeed;
 };
+
+export enum ArticleFeed {
+  User,
+  Followed,
+  Global,
+  Tag
+}
 
 export type ArticleDto = {
   slug: string;
@@ -28,7 +36,7 @@ export type AuthorDto = {
 };
 
 export type ArticleViewModelList = {
-  articles: ArticleViewModel[];
+  articles: ArticleDto[];
   articlesCount: number;
 };
 

@@ -1,8 +1,10 @@
 import { getAccessorType } from "typed-vuex";
 import * as users from "./users";
+import * as articles from "./articles";
 
 export const accessorType = getAccessorType({
   modules: {
-    users
+    users,
+    articles
   }
 });

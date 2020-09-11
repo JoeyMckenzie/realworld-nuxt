@@ -10,76 +10,46 @@
 
     <div class="container page">
       <div class="row">
-
         <div class="col-md-9">
-          <div class="feed-toggle">
-            <ul class="nav nav-pills outline-active">
-              <li class="nav-item">
-                <a class="nav-link disabled" href="">Your Feed</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="">Global Feed</a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href="profile.html"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Eric Simons</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 29
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>How to build webapps that scale</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-            </a>
-          </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href="profile.html"><img src="http://i.imgur.com/N4VcUeJ.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Albert Pai</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 32
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-            </a>
-          </div>
-
+          <ArticleFeed />
+          <ArticleList :articles="currentArticles" />
         </div>
-
-        <div class="col-md-3">
-          <div class="sidebar">
-            <p>Popular Tags</p>
-
-            <div class="tag-list">
-              <a href="" class="tag-pill tag-default">programming</a>
-              <a href="" class="tag-pill tag-default">javascript</a>
-              <a href="" class="tag-pill tag-default">emberjs</a>
-              <a href="" class="tag-pill tag-default">angularjs</a>
-              <a href="" class="tag-pill tag-default">react</a>
-              <a href="" class="tag-pill tag-default">mean</a>
-              <a href="" class="tag-pill tag-default">node</a>
-              <a href="" class="tag-pill tag-default">rails</a>
-            </div>
-          </div>
-        </div>
-
+        <Tags />
       </div>
     </div>
 
   </div>  
 </template>
+
+<script lang="ts">
+import Vue from "vue";
+import { ArticlesState } from "~/models/article.types";
+import { UsersState } from "~/models/user.types";
+import { LOAD_ARTICLES, REHYDRATE_ARTICLES_STATE } from "~/store/articles";
+import { REHYDRATE_USERS_STATE } from "~/store/users";
+import { isNullOrUndefined } from "~/utils";
+import { mapGetters } from "vuex";
+import ArticleList from "./articles/ArticleList.vue";
+import ArticleFeed from "./articles/ArticleFeed.vue";
+import Tags from "./Tags.vue";
+
+export default Vue.extend({
+  components: {
+    ArticleList,
+    ArticleFeed,
+    Tags
+  },
+  beforeMount() {
+    const cachedState = localStorage.getItem("cachedState");
+
+    if (isNullOrUndefined(cachedState)) {
+      return;
+    }
+
+    const deserializedState: { articles: ArticlesState, users: UsersState } = JSON.parse(cachedState!);
+    this.$accessor.users[REHYDRATE_USERS_STATE](deserializedState.users);
+    this.$accessor.articles[REHYDRATE_ARTICLES_STATE](deserializedState.articles);
+  },
+  computed: mapGetters("articles", ["currentArticles"])
+})
+</script>

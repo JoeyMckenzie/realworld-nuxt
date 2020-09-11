@@ -85,3 +85,14 @@
 
   </div>  
 </template>
+
+<script lang="ts">
+import { Context } from "@nuxt/types";
+import Vue from "vue";
+
+export default Vue.extend({
+  async asyncData(context: Context) {
+    context.route.path
+  }
+})
+</script>
