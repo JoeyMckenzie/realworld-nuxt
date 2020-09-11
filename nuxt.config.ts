@@ -1,6 +1,7 @@
-import { Configuration } from "@nuxt/types"
+import { NuxtConfig } from "@nuxt/types"
+import{ Configuration } from "webpack";
 
-const realworldConfig: Configuration = {
+const realworldConfig: NuxtConfig = {
   /*
   ** Nuxt rendering mode
   ** See https://nuxtjs.org/api/configuration-mode
@@ -68,7 +69,7 @@ const realworldConfig: Configuration = {
       common: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Charset": "utf-8"
+        "charset": "utf-8"
       }
     }
   },
@@ -77,9 +78,9 @@ const realworldConfig: Configuration = {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-    extend(config, ctx) {
-      if (ctx.isDev) {
-        config.devtool = ctx.isClient ? 'source-map' : 'inline-source-map'
+    extend(config: Configuration, { isDev }) {
+      if (isDev) {
+        config.devtool = process.client ? "source-map" : "inline-source-map"
       }
     }
   },
