@@ -14,9 +14,11 @@
   "dependencies": {
     "@nuxt/typescript-runtime": "^1.0.0",
     "@nuxtjs/axios": "^5.12.2",
+    "@types/js-cookie": "^2.2.6",
     "nuxt": "^2.14.0",
     "nuxt-typed-vuex": "^0.1.21",
-    "ts-loader": "^8.0.3"
+    "ts-loader": "^8.0.3",
+    "vuex-persistedstate": "^3.1.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.0",

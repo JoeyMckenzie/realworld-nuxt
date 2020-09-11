@@ -1,9 +1,10 @@
-import { ApiError, ApiErrorDto } from "./shared.types";
+import { ApiError, ApiErrorDto, Maybe } from "./shared.types";
 
 export type UsersState = {
-  currentUser: UserDto | undefined,
+  currentUser: Maybe<UserDto>,
   errors: string[],
-  isLoading: boolean
+  isLoading: boolean,
+  updatedUser: UserDto
 };
 
 export type UserViewModel = {

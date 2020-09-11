@@ -21,3 +21,7 @@ export const getUserTokenFromStorage = (): RetrievedItem => {
 
   return token === null ? false : token;
 }
+
+export const getStringOrDefault = (value: Maybe<string>): string => {
+  return isStringNullUndefinedOrEmpty(value) ? "" : value!;
+}

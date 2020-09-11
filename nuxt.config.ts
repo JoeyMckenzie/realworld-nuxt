@@ -39,6 +39,10 @@ const realworldConfig: Configuration = {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
+    {
+      src: "~/plugins/vuex-persistedstate",
+      ssr: false
+    }
   ],
   /*
   ** Auto import components

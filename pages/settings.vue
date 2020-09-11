@@ -47,7 +47,7 @@ import { mapGetters } from "vuex";
 import { LOGIN_USER, CLEAR_API_ERRORS, UPDATE_USER } from "@/store/users";
 import { AuthenticationRequest, LoginRequest, UpdateRequest, UserDto, UsersState } from "@/models/users.types";
 import { Route, NavigationGuardNext } from "vue-router";
-import { isNullOrUndefined, isStringNullUndefinedOrEmpty } from "~/utils";
+import { getStringOrDefault, isNullOrUndefined, isStringNullUndefinedOrEmpty } from "~/utils";
 import { Maybe } from "~/models/shared.types";
 
 export default Vue.extend({
@@ -62,14 +62,6 @@ export default Vue.extend({
     // Clear any persisting API errors when the route changes
     this.$accessor.users[CLEAR_API_ERRORS]();
     next();
-  },
-  beforeCreate() {
-    this.$store.watch((state: UsersState) => state.currentUser, (updatedUser, _) => {
-      this.$data.image = updatedUser?.image;
-      this.$data.username = updatedUser?.username;
-      this.$data.bio = updatedUser?.bio;
-      this.$data.email = updatedUser?.email;
-    })
   },
   created() {
     const user = this.$accessor.users.currentUser;

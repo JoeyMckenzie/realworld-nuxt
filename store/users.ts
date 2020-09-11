@@ -18,11 +18,13 @@ export const REGISTER_USER = "register";
 export const UPDATE_USER = "update";
 export const GET_CURRENT_USER = "getCurrentUser";
 export const CLEAR_API_ERRORS = "clearApiErrors";
+export const SET_UPDATED_USERNAME = "setUpdatedUsername";
+export const SET_UPDATED_IMAGE = "setUpdatedImage";
+export const SET_UPDATED_BIO = "setUpdatedBio";
+export const SET_UPDATED_EMAIL = "setUpdatedEmail";
 
 const HANDLE_AUTHENTICATION_ATTEMPT = "handleAuthenticationAttempt";
 const CLEAR_USER = "clearUser";
-const SET_TOKEN_IN_STORAGE = "setUserInStorage";
-const USER_TOKEN_STORAGE_KEY = "user";
 
 
 /**
@@ -31,7 +33,8 @@ const USER_TOKEN_STORAGE_KEY = "user";
 export const state = () => ({
   currentUser: undefined,
   errors: [] as string[],
-  isLoading: false
+  isLoading: false,
+  updatedUser: { } as UserDto
 } as UsersState);
 
 /**
@@ -48,6 +51,10 @@ export const getters = getterTree(state, {
  */
 export const mutations = mutationTree(state, {
   [SET_CURRENT_USER]: (state: UsersState, user: UserDto | undefined) => state.currentUser = user,
+  [SET_UPDATED_USERNAME]: (state: UsersState, updatedUsername: string) => state.updatedUser.username = updatedUsername,
+  [SET_UPDATED_EMAIL]: (state: UsersState, updatedEmail: string) => state.updatedUser.email = updatedEmail,
+  [SET_UPDATED_BIO]: (state: UsersState, updatedBio: string) => state.updatedUser.bio = updatedBio,
+  [SET_UPDATED_IMAGE]: (state: UsersState, updatedImage: string) => state.updatedUser.image = updatedImage,
 
   /**
    * Mutates error state to flatten the returned error aggregate from the API as a string list.
@@ -73,7 +80,7 @@ export const mutations = mutationTree(state, {
     }
 
     state.errors = friendlyErrors;
-  }
+  },
 });
 
 /**
@@ -82,7 +89,10 @@ export const mutations = mutationTree(state, {
 export const actions = actionTree({ state, getters, mutations }, {
   [CLEAR_USER]: ({commit}) => commit(SET_CURRENT_USER, undefined),
   [CLEAR_API_ERRORS]: ({ commit }) => commit(SET_AUTHENTICATION_ERROR, undefined),
-  [SET_TOKEN_IN_STORAGE]: ({ }, token: string) => localStorage.setItem(USER_TOKEN_STORAGE_KEY, token),
+  [SET_UPDATED_USERNAME]: ({ commit }, updatedUsername: string) => commit(SET_UPDATED_USERNAME, updatedUsername),
+  [SET_UPDATED_EMAIL]: ({ commit }, updatedEmail: string) => commit(SET_UPDATED_EMAIL, updatedEmail),
+  [SET_UPDATED_BIO]: ({ commit }, updatedBio: string) => commit(SET_UPDATED_BIO, updatedBio),
+  [SET_UPDATED_IMAGE]: ({ commit }, updatedImage: string) => commit(SET_UPDATED_IMAGE, updatedImage),
 
   /**
    * Dispatched action to call the login endpoint and route back to home on success.
@@ -111,12 +121,11 @@ export const actions = actionTree({ state, getters, mutations }, {
    * @param commit|dispatch - Context helpers 
    * @param payload {AuthenticationRequest} - Registration or login payload
    */
-  async [HANDLE_AUTHENTICATION_ATTEMPT]({ commit, dispatch }, payload: AuthenticationRequest) {
+  async [HANDLE_AUTHENTICATION_ATTEMPT]({ commit }, payload: AuthenticationRequest) {
     try {
       // Call the register endpoint
       const apiResponse = await this.$axios.$post<UserViewModel>(payload.endpoint, { user: payload.user });
       commit(SET_CURRENT_USER, apiResponse.user);
-      dispatch(SET_TOKEN_IN_STORAGE, apiResponse.user.token);
 
       // Route the user back to the home page
       this.$router.push("/");
@@ -146,18 +155,17 @@ export const actions = actionTree({ state, getters, mutations }, {
    * @param commit - Context helper 
    * @param user {UpdateRequest} - User meta data to update
    */
-  async [UPDATE_USER]({ commit, dispatch }, user: UpdateRequest) {
+  async [UPDATE_USER]({ commit }, user: UpdateRequest) {
     this.$axios.setToken(getUserTokenFromStorage(), "Token");
 
     try {
       const apiResponse = await this.$axios.$put<UserViewModel>("/user", { user });
       commit(SET_CURRENT_USER, apiResponse.user);
-      dispatch(SET_TOKEN_IN_STORAGE, apiResponse.user.token);
+      commit(SET_AUTHENTICATION_ERROR, undefined);
     } catch (error) {
       // Axios returns the response body with error.response.data
       commit(SET_AUTHENTICATION_ERROR, error.response.data.errors as ApiErrorDto);
     }
-
   }
 });
 
