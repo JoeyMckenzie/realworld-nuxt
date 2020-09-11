@@ -27,8 +27,7 @@
     "types": [
       "@types/node",
       "@nuxt/types",
-      "@nuxtjs/axios",
-      "@types/js-cookie"
+      "@nuxtjs/axios"
     ]
   },
   "exclude": [
