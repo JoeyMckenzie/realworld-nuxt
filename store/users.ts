@@ -1,6 +1,6 @@
 import { getAccessorType, getterTree, actionTree, mutationTree } from "typed-vuex";
-import { UserViewModel, AuthenticationRequest, UserDto, UsersState, AuthenticationResponse, LoginRequest, RegisterRequest, UpdateRequest } from "@/models/user.types";
-import { ApiErrorDto } from "@/models/shared.types";
+import { UserViewModel, AuthenticationRequest, UserDto, UsersState, AuthenticationResponse, LoginRequest, RegisterRequest, UpdateRequest, UserProfileDto, UserProfileViewModel } from "@/models/user.types";
+import { ApiErrorDto, Maybe } from "@/models/shared.types";
 import { isNullOrUndefined, getUserTokenFromStorage } from "@/utils";
 
 /**
@@ -8,6 +8,7 @@ import { isNullOrUndefined, getUserTokenFromStorage } from "@/utils";
  */
 const SET_USERS_STATE = "setUsersState";
 const SET_CURRENT_USER = "setCurrentUser";
+const SET_USER_PROFILE = "setUserProfile";
 const SET_AUTHENTICATION_ERROR = "setAuthenticationError";
 
 /**
@@ -18,6 +19,7 @@ export const LOGIN_USER = "login";
 export const REGISTER_USER = "register";
 export const UPDATE_USER = "update";
 export const GET_CURRENT_USER = "getCurrentUser";
+export const GET_USER_PROFILE = "getUserProfile";
 export const CLEAR_API_ERRORS = "clearApiErrors";
 export const SET_UPDATED_USERNAME = "setUpdatedUsername";
 export const SET_UPDATED_IMAGE = "setUpdatedImage";
@@ -35,7 +37,8 @@ export const state = () => ({
   currentUser: undefined,
   errors: [] as string[],
   isLoading: false,
-  updatedUser: { } as UserDto
+  updatedUser: { } as UserDto,
+  currentUserProfile: undefined
 } as UsersState);
 
 /**
@@ -45,6 +48,7 @@ export const getters = getterTree(state, {
   currentUser: state => state.currentUser,
   userIsAuthenticated: state => !isNullOrUndefined(state.currentUser),
   errors: state => state.errors,
+  currentUserProfile: state => state.currentUserProfile
 });
 
 /**
@@ -57,7 +61,8 @@ export const mutations = mutationTree(state, {
     state.isLoading = rehydratedState.isLoading;
     state.updatedUser = rehydratedState.updatedUser;
   },
-  [SET_CURRENT_USER]: (state: UsersState, user: UserDto | undefined) => state.currentUser = user,
+  [SET_CURRENT_USER]: (state: UsersState, user: Maybe<UserDto>) => state.currentUser = user,
+  [SET_USER_PROFILE]: (state: UsersState, userProfile: Maybe<UserProfileDto>) => state.currentUserProfile = userProfile,
   [SET_UPDATED_USERNAME]: (state: UsersState, updatedUsername: string) => state.updatedUser.username = updatedUsername,
   [SET_UPDATED_EMAIL]: (state: UsersState, updatedEmail: string) => state.updatedUser.email = updatedEmail,
   [SET_UPDATED_BIO]: (state: UsersState, updatedBio: string) => state.updatedUser.bio = updatedBio,
@@ -142,6 +147,15 @@ export const actions = actionTree({ state, getters, mutations }, {
 
       // Axios returns the response body with error.response.data
       commit(SET_AUTHENTICATION_ERROR, error.response.data.errors as ApiErrorDto);
+    }
+  },
+
+  async [GET_USER_PROFILE]({ commit }, username: string) {
+    try {
+      const apiResponse = await this.$axios.$get<UserProfileViewModel>(`/profiles/${username}`);
+      commit(SET_USER_PROFILE, apiResponse.profile);
+    } catch (error) {
+      commit(SET_USER_PROFILE, undefined);
     }
   },
 

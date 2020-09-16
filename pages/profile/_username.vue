@@ -6,15 +6,13 @@
         <div class="row">
 
           <div class="col-xs-12 col-md-10 offset-md-1">
-            <img src="http://i.imgur.com/Qr71crq.jpg" class="user-img" />
-            <h4>Eric Simons</h4>
-            <p>
-              Cofounder @GoThinkster, lived in Aol's HQ for a few months, kinda looks like Peeta from the Hunger Games
-            </p>
+            <img :src="getImage" class="user-img" />
+            <h4>{{ getUsername }}</h4>
+            <p>{{ getBio }}</p>
             <button class="btn btn-sm btn-outline-secondary action-btn">
               <i class="ion-plus-round"></i>
               &nbsp;
-              Follow Eric Simons 
+              Follow {{ getUsername }} 
             </button>
           </div>
 
@@ -29,55 +27,15 @@
           <div class="articles-toggle">
             <ul class="nav nav-pills outline-active">
               <li class="nav-item">
-                <a class="nav-link active" href="">My Articles</a>
+                <span @click="loadUserArticles" class="cursor-pointer nav-link" href="">My Articles</span>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="">Favorited Articles</a>
+                <span @click="loadFavoritedArticles" class="cursor-pointer nav-link" href="">Favorited Articles</span>
               </li>
             </ul>
           </div>
 
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Eric Simons</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 29
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>How to build webapps that scale</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-            </a>
-          </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href=""><img src="http://i.imgur.com/N4VcUeJ.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Albert Pai</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 32
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-              <ul class="tag-list">
-                <li class="tag-default tag-pill tag-outline">Music</li>
-                <li class="tag-default tag-pill tag-outline">Song</li>
-              </ul>
-            </a>
-          </div>
-
-
+          <ArticleList :articles="currentArticles" />
         </div>
 
       </div>
@@ -87,12 +45,63 @@
 </template>
 
 <script lang="ts">
-import { Context } from "@nuxt/types";
 import Vue from "vue";
+import ArticleList from "@/components/articles/ArticleList.vue";
+import { Context } from "@nuxt/types";
+import { GET_USER_PROFILE } from "@/store/users";
+import { mapGetters } from "vuex";
+import { isNullOrUndefined } from "@/utils";
+import { Maybe } from "@/models/shared.types";
+import { LOAD_ARTICLES_BY_USER, LOAD_FAVORITED_ARTICLES } from "@/store/articles";
 
 export default Vue.extend({
-  async asyncData(context: Context) {
-    context.route.path
+  components: {
+    ArticleList
+  },
+  asyncData: (context: Context) => {
+    let parsedUsername = "";
+
+    // Grab the username from the path route
+    const tokenizedPath = context.route.path.split("/");
+    
+    if (tokenizedPath.length > 0) {
+      parsedUsername = tokenizedPath[tokenizedPath.length - 1];
+    }
+
+    return {
+      username: parsedUsername
+    };
+  },
+  created() {
+      this.$accessor.users[GET_USER_PROFILE](this.$data.username);
+      this.$accessor.articles[LOAD_ARTICLES_BY_USER](this.$data.username);
+  },
+  computed: {
+    ...mapGetters("users", ["currentUserProfile"]),
+    ...mapGetters("articles", ["currentArticles"]),
+    getUsername(): Maybe<string> {
+      return this.currentUserProfile?.username;
+    },
+    getImage(): Maybe<string> {
+      return this.currentUserProfile?.image;
+    },
+    getBio(): Maybe<string> {
+      return this.currentUserProfile?.bio;
+    },
+  },
+  methods: {
+    loadUserArticles() {
+      this.$accessor.articles[LOAD_ARTICLES_BY_USER](this.$data.username);
+    },
+    loadFavoritedArticles() {
+      this.$accessor.articles[LOAD_FAVORITED_ARTICLES](this.$data.username);
+    }
   }
 })
 </script>
+
+<style scoped>
+.cursor-pointer { 
+  cursor: pointer;
+}
+</style>

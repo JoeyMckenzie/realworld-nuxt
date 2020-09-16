@@ -10,17 +10,18 @@
         <i class="ion-heart"></i> {{ favoritedCount }}
       </button>
     </div>
-    <nuxt-link to="" class="preview-link">
+    <div @click="getArticleFromSlug" class="cursor-pointer preview-link">
       <h1>{{ title }}</h1>
       <p>{{ description }}</p>
       <span>Read more...</span>
-    </nuxt-link>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { AuthorDto } from "@/models/article.types";
+import { LOAD_ARTICLE } from "@/store/articles";
 
 export default Vue.extend({
   props: {
@@ -30,6 +31,7 @@ export default Vue.extend({
     favoritedCount: Number,
     title: String,
     description: String,
+    slug: String
   },
   computed: {
     getFriendlyDate(): string {
@@ -37,7 +39,21 @@ export default Vue.extend({
     },
     getUserprofileLink(): string {
       return `/profile/${this.$props.authorUsername}`;
+    },
+    getArticleRoute(): string {
+      return `/article/${this.$props.slug}`;
+    }
+  },
+  methods: {
+    getArticleFromSlug(): void {
+      this.$accessor.articles[LOAD_ARTICLE](this.$props.slug);
     }
   }
 })
 </script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+</style>

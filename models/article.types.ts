@@ -1,6 +1,8 @@
+import { Maybe } from "./shared.types";
+
 export type ArticlesState = {
   currentArticleList?: ArticleViewModelList;
-  currentArticle?: ArticleViewModel;
+  currentArticle?: Maybe<ArticleViewModel>;
   currentFeed: ArticleFeed;
 };
 
@@ -8,7 +10,8 @@ export enum ArticleFeed {
   User,
   Followed,
   Global,
-  Tag
+  Tag,
+  Favorited
 }
 
 export type ArticleDto = {

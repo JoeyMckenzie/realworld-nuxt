@@ -8,6 +8,7 @@
         :date="article.createdAt"
         :description="article.description"
         :favoritedCount="article.favoritesCount"
+        :slug="article.slug"
         :title="article.title" />
     </div>
   </div>
@@ -25,7 +26,7 @@ export default Vue.extend({
   props: {
     articles: {
       type: Array,
-      default: () => []
+      default: () => [] as ArticleDto[]
     }
   },
   computed: {

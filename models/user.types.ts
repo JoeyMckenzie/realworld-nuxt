@@ -4,7 +4,8 @@ export type UsersState = {
   currentUser: Maybe<UserDto>,
   errors: string[],
   isLoading: boolean,
-  updatedUser: UserDto
+  updatedUser: UserDto,
+  currentUserProfile: Maybe<UserProfileDto>
 };
 
 export type UserViewModel = {
@@ -45,3 +46,14 @@ export type AuthenticationRequest = {
 };
 
 export type AuthenticationResponse = UserViewModel | ApiErrorDto;
+
+export type UserProfileViewModel = {
+  profile: UserProfileDto;
+};
+
+export type UserProfileDto = {
+  username: string;
+  bio: string;
+  image: string;
+  following: string;
+};

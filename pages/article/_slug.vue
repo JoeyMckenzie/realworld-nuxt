@@ -4,13 +4,13 @@
     <div class="banner">
       <div class="container">
 
-        <h1>How to build webapps that scale</h1>
+        <h1>{{ currentArticle.title }}</h1>
 
         <div class="article-meta">
           <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
           <div class="info">
-            <a href="" class="author">Eric Simons</a>
-            <span class="date">January 20th</span>
+            <a href="" class="author">{{ currentArticle.author.username }}</a>
+            <span class="date">{{ getFriendlyDate }}</span>
           </div>
           <button class="btn btn-sm btn-outline-secondary">
             <i class="ion-plus-round"></i>
@@ -111,12 +111,25 @@
               </span>
             </div>
           </div>
-          
         </div>
-
       </div>
-
     </div>
-
   </div>  
 </template>
+
+<script lang="ts">
+import Vue from "vue";
+import { Context } from "@nuxt/types";
+import { mapGetters } from "vuex";
+import { isStringNullUndefinedOrEmpty } from "~/utils";
+import { LOAD_ARTICLE } from "~/store/articles";
+
+export default Vue.extend({
+  computed: {
+    ...mapGetters("articles", ["currentArticle"]),
+    getFriendlyDate(): string {
+      return new Date(this.currentArticle.createdAt).toDateString();
+    }
+  }
+})
+</script>

@@ -23,15 +23,16 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { ArticlesState } from "~/models/article.types";
-import { UsersState } from "~/models/user.types";
-import { LOAD_ARTICLES, REHYDRATE_ARTICLES_STATE } from "~/store/articles";
-import { REHYDRATE_USERS_STATE } from "~/store/users";
-import { isNullOrUndefined } from "~/utils";
-import { mapGetters } from "vuex";
 import ArticleList from "./articles/ArticleList.vue";
 import ArticleFeed from "./articles/ArticleFeed.vue";
 import Tags from "./Tags.vue";
+import { ArticlesState } from "@/models/article.types";
+import { UsersState } from "@/models/user.types";
+import { LOAD_ARTICLES, REHYDRATE_ARTICLES_STATE } from "@/store/articles";
+import { REHYDRATE_USERS_STATE } from "@/store/users";
+import { isNullOrUndefined } from "@/utils";
+import { Route, NavigationGuardNext } from "vue-router";
+import { mapGetters } from "vuex";
 
 export default Vue.extend({
   components: {
