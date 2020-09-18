@@ -6,7 +6,10 @@
         <nuxt-link :to="getUserprofileLink" class="author">{{ authorUsername }}</nuxt-link>
         <span class="date">{{ getFriendlyDate }}</span>
       </div>
-      <button class="btn btn-outline-primary btn-sm pull-xs-right">
+      <button v-if="favorited" @click="unfavoriteArticle" class="btn btn-outline-primary btn-sm pull-xs-right">
+        <i class="ion-heart"></i> {{ favoritedCount }}
+      </button>
+      <button v-else @click="favoriteArticle" class="btn btn-outline-primary btn-sm pull-xs-right">
         <i class="ion-heart"></i> {{ favoritedCount }}
       </button>
     </div>
@@ -21,7 +24,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { AuthorDto } from "@/models/article.types";
-import { LOAD_ARTICLE } from "@/store/articles";
+import { FAVORITE_ARTICLE, LOAD_ARTICLE, UNFAVORITE_ARTICLE } from "@/store/articles";
 
 export default Vue.extend({
   props: {
@@ -31,7 +34,8 @@ export default Vue.extend({
     favoritedCount: Number,
     title: String,
     description: String,
-    slug: String
+    slug: String,
+    favorited: Boolean
   },
   computed: {
     getFriendlyDate(): string {
@@ -47,6 +51,12 @@ export default Vue.extend({
   methods: {
     getArticleFromSlug(): void {
       this.$accessor.articles[LOAD_ARTICLE](this.$props.slug);
+    },
+    favoriteArticle(): void {
+      this.$accessor.articles[FAVORITE_ARTICLE](this.$props.slug);
+    },
+    unfavoriteArticle(): void {
+      this.$accessor.articles[UNFAVORITE_ARTICLE](this.$props.slug);
     }
   }
 })

@@ -33,6 +33,8 @@ import { REHYDRATE_USERS_STATE } from "@/store/users";
 import { isNullOrUndefined } from "@/utils";
 import { Route, NavigationGuardNext } from "vue-router";
 import { mapGetters } from "vuex";
+import { TagsState } from "@/models/tag.types";
+import { REHYDRATE_TAGS_STATE } from "@/store/tags";
 
 export default Vue.extend({
   components: {
@@ -47,9 +49,10 @@ export default Vue.extend({
       return;
     }
 
-    const deserializedState: { articles: ArticlesState, users: UsersState } = JSON.parse(cachedState!);
+    const deserializedState: { articles: ArticlesState, users: UsersState, tags: TagsState } = JSON.parse(cachedState!);
     this.$accessor.users[REHYDRATE_USERS_STATE](deserializedState.users);
     this.$accessor.articles[REHYDRATE_ARTICLES_STATE](deserializedState.articles);
+    this.$accessor.tags[REHYDRATE_TAGS_STATE](deserializedState.tags);
   },
   computed: mapGetters("articles", ["currentArticles"])
 })

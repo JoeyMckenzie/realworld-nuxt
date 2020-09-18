@@ -8,7 +8,7 @@
         <a @click="loadGlobalFeed" :class="isGlobalFeed ? 'active' : undefined" class="cursor-pointer nav-link">Global Feed</a>
       </li>
       <li v-show="isTagFeed" class="nav-item">
-        <a class="nav-link active">Global Feed</a>
+        <a class="nav-link active">#{{ tagFeed }}</a>
       </li>
     </ul>
   </div>
@@ -23,7 +23,7 @@ import { LOAD_ARTICLES, LOAD_FEED } from "~/store/articles";
 export default Vue.extend({
   computed: {
     ...mapGetters("users", ["userIsAuthenticated"]),
-    ...mapGetters("articles", ["currentFeed"]),
+    ...mapGetters("articles", ["currentFeed", "tagFeed"]),
     isTagFeed(): boolean {
       return this.currentFeed === ArticleFeed.Tag;
     },

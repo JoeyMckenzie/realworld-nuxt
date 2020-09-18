@@ -4,6 +4,9 @@ export type ArticlesState = {
   currentArticleList?: ArticleViewModelList;
   currentArticle?: Maybe<ArticleViewModel>;
   currentFeed: ArticleFeed;
+  loadedTagFeed: Maybe<string>;
+  loadingArticles: boolean;
+  currentArticleTags: string[];
 };
 
 export enum ArticleFeed {

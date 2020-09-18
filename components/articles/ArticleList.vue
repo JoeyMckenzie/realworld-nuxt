@@ -1,7 +1,10 @@
 <template>
   <div>
+    <div v-if="isLoading">
+      <span class="text-center">Loading articles...</span>
+    </div>
     <!-- Iterate through each article and add the meta -->
-    <div v-for="article in getArticles" :key="article.slug">
+    <div v-else v-for="article in getArticles" :key="article.slug">
       <ArticleMeta 
         :authorImage="article.author.image"
         :authorUsername="article.author.username"
@@ -9,6 +12,7 @@
         :description="article.description"
         :favoritedCount="article.favoritesCount"
         :slug="article.slug"
+        :favorited="article.favorited"
         :title="article.title" />
     </div>
   </div>
@@ -16,11 +20,11 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { mapGetters } from "vuex";
-import { getUserTokenFromStorage, isStringNullUndefinedOrEmpty, isNullOrUndefined } from "@/utils";
-import { ArticleDto, ArticleViewModelList } from "../../models/article.types";
 import ArticleFeed from "./ArticleFeed.vue";
 import ArticleMeta from "./ArticleMeta.vue";
+import { mapGetters } from "vuex";
+import { getUserTokenFromStorage, isStringNullUndefinedOrEmpty, isNullOrUndefined } from "@/utils";
+import { ArticleDto, ArticleViewModelList } from "@/models/article.types";
 
 export default Vue.extend({
   props: {
@@ -30,6 +34,7 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapGetters("articles", ["isLoading"]),
     articlesHaveLoaded(): boolean {
       return this.$props.articles.length > 0;
     },

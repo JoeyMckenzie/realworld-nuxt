@@ -3,15 +3,8 @@
     <div class="sidebar">
       <p>Popular Tags</p>
 
-      <div class="tag-list">
-        <a href="" class="tag-pill tag-default">programming</a>
-        <a href="" class="tag-pill tag-default">javascript</a>
-        <a href="" class="tag-pill tag-default">emberjs</a>
-        <a href="" class="tag-pill tag-default">angularjs</a>
-        <a href="" class="tag-pill tag-default">react</a>
-        <a href="" class="tag-pill tag-default">mean</a>
-        <a href="" class="tag-pill tag-default">node</a>
-        <a href="" class="tag-pill tag-default">rails</a>
+      <div v-for="tag in tags" :key="tag" class="tag-list">
+        <a @click="loadArticlesWithTag(tag)" class="cursor-pointer tag-pill tag-default">{{ tag }}</a>
       </div>
     </div>
   </div>
@@ -19,7 +12,25 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { mapGetters } from "vuex";
+import { LOAD_ARTICLE_TAG_FEED } from "@/store/articles";
+import { LOAD_TAGS } from "~/store/tags";
+
 export default Vue.extend({
-  
+  beforeCreate() {
+    this.$accessor.tags[LOAD_TAGS]();
+  },
+  computed: mapGetters("tags", ["tags"]),
+  methods: {
+    loadArticlesWithTag(tag: string): void {
+      this.$accessor.articles[LOAD_ARTICLE_TAG_FEED](tag);
+    }
+  }
 })
 </script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+</style>

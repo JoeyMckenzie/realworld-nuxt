@@ -30,6 +30,22 @@ export const getUserTokenFromStorage = (): RetrievedItem => {
   return isNullOrUndefined(deserializedState.users.currentUser?.token) ? false : deserializedState.users.currentUser?.token!;
 }
 
+export const getUsernameFromStorage = (): RetrievedItem => {
+  if (!process.browser) {
+    return false;
+  }
+
+  const cachedState = localStorage.getItem("cachedState");
+
+  if (isNullOrUndefined(cachedState)) {
+    return false;
+  }
+
+  const deserializedState: { articles: ArticlesState, users: UsersState } = JSON.parse(cachedState!);
+
+  return isNullOrUndefined(deserializedState.users.currentUser?.username) ? false : deserializedState.users.currentUser?.username!;
+}
+
 export const getStringOrDefault = (value: Maybe<string>): string => {
   return isStringNullUndefinedOrEmpty(value) ? "" : value!;
 }
